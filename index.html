@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal de Leilões de Imóveis</title>
+  <link rel="stylesheet" href="styles.css">
+  <!-- Leaflet CSS carregado dinamicamente pelo mapa.js -->
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>🏠 Portal de Leilões</h1>
+      <p class="subtitle">Meu agregador pessoal de imóveis de leilão</p>
+    </div>
+    <div class="header-actions">
+      <span id="ultima-atualizacao" class="ultima-atualizacao">–</span>
+      <button id="btn-atualizar" class="btn-atualizar" onclick="atualizar()">⟳ Atualizar</button>
+    </div>
+  </header>
+
+  <main>
+    <aside class="filters">
+      <h2>Filtros</h2>
+
+      <div class="filter-group">
+        <label for="busca">Busca livre</label>
+        <input type="text" id="busca" placeholder="Cidade, bairro, descrição...">
+      </div>
+
+      <div class="filter-group">
+        <label for="estado">Estado</label>
+        <select id="estado"><option value="">Todos</option></select>
+      </div>
+
+      <div class="filter-group">
+        <label for="cidade">Cidade</label>
+        <select id="cidade"><option value="">Todas</option></select>
+      </div>
+
+      <div class="filter-group">
+        <label for="tipo">Tipo de imóvel</label>
+        <select id="tipo"><option value="">Todos</option></select>
+      </div>
+
+      <div class="filter-group">
+        <label for="modalidade">Modalidade</label>
+        <select id="modalidade"><option value="">Todas</option></select>
+      </div>
+
+      <div class="filter-group">
+        <label for="leiloeiro">Leiloeiro</label>
+        <select id="leiloeiro"><option value="">Todos</option></select>
+      </div>
+
+      <div class="filter-group">
+        <label for="origem">Origem jurídica</label>
+        <select id="origem"><option value="">Todas</option></select>
+      </div>
+
+      <div class="filter-group">
+        <label for="situacao">Situação</label>
+        <select id="situacao"><option value="">Todas</option></select>
+      </div>
+
+      <div class="filter-group">
+        <label>Faixa de valor (lance mínimo)</label>
+        <div class="range-inputs">
+          <input type="number" id="valorMin" placeholder="Mín. R$">
+          <input type="number" id="valorMax" placeholder="Máx. R$">
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label for="descontoMin">Desconto mínimo (%)</label>
+        <input type="number" id="descontoMin" placeholder="Ex: 30" min="0" max="100">
+      </div>
+
+      <div class="filter-group">
+        <label for="prazo">Data do leilão</label>
+        <select id="prazo">
+          <option value="">Qualquer data</option>
+          <option value="7">Próximos 7 dias</option>
+          <option value="15">Próximos 15 dias</option>
+          <option value="30">Próximos 30 dias</option>
+        </select>
+      </div>
+
+      <button id="limpar" class="btn-clear">Limpar filtros</button>
+    </aside>
+
+    <section class="results">
+      <div class="view-toggle">
+        <button id="btn-lista" class="btn-view active">☰ Lista</button>
+        <button id="btn-mapa" class="btn-view">🗺 Mapa</button>
+      </div>
+
+      <div class="quick-access">
+        <span class="quick-label">Acesso rápido:</span>
+        <button class="btn-quick" data-cidade="Cravinhos">📍 Cravinhos</button>
+        <button class="btn-quick" data-cidade="Ribeirão Preto">📍 Ribeirão Preto</button>
+        <button class="btn-quick" data-cidade="São Paulo">📍 São Paulo</button>
+        <button class="btn-quick" data-cidade="São Carlos">📍 São Carlos</button>
+        <button id="btn-bairros-nobres" class="btn-quick btn-quick-nobres">🏙 SP – Bairros Nobres</button>
+        <button class="btn-quick btn-quick-all" data-cidade="">✕ Todas as cidades</button>
+      </div>
+      <div class="results-bar">
+        <span id="contador">0 imóveis</span>
+        <div class="sort-wrap">
+          <label for="ordenar">Ordenar por</label>
+          <select id="ordenar">
+            <option value="data-asc">Data do leilão (mais próximo)</option>
+            <option value="valor-asc">Menor valor</option>
+            <option value="valor-desc">Maior valor</option>
+            <option value="desconto-desc">Maior desconto</option>
+          </select>
+        </div>
+      </div>
+      <!-- Mapa (antes da lista) -->
+      <div id="mapa-container" hidden>
+        <div id="mapa-aviso" class="mapa-aviso">
+          🗺 Navegue e faça zoom para filtrar os imóveis pela região visível.
+          &nbsp;·&nbsp;
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px">
+            <span style="width:10px;height:10px;border-radius:50%;background:#38bdf8;border:2px solid rgba(255,255,255,.8);display:inline-block"></span> Endereço exato
+          </span>
+          &nbsp;·&nbsp;
+          <span style="display:inline-flex;align-items:center;gap:5px;font-size:12px">
+            <span style="width:10px;height:10px;border-radius:50%;background:rgba(148,163,184,.4);border:2px dashed rgba(148,163,184,.8);display:inline-block"></span> Centro da cidade
+          </span>
+        </div>
+        <div id="mapa"></div>
+      </div>
+
+      <div id="lista" class="cards"></div>
+      <p id="vazio" class="empty" hidden>Nenhum imóvel encontrado com esses filtros.</p>
+    </section>
+  </main>
+
+  <script src="meta.js" onerror="void(0)"></script>
+  <script src="data.js"></script>
+  <script src="cidades_coords.js"></script>
+  <script src="enderecos_coords.js"></script>
+  <script src="app.js"></script>
+  <script src="mapa.js"></script>
+</body>
+</html>
